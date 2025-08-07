@@ -36,6 +36,7 @@ interface CauseDetailsScreenProps {
   onEdit: (cause: any) => void;
   onDelete: (cause: any) => void;
   handleJoinCause: any;
+  triggerUpdate: boolean;
 }
 
 export default function CauseDetailsScreen({
@@ -45,6 +46,7 @@ export default function CauseDetailsScreen({
   onEdit,
   onDelete,
   handleJoinCause,
+  triggerUpdate,
 }: CauseDetailsScreenProps) {
   const [newComment, setNewComment] = useState("");
   const [replyTo, setReplyTo] = useState<number | null>(null);
@@ -143,7 +145,7 @@ export default function CauseDetailsScreen({
       getComments();
       getVolunteers();
     })();
-  }, [cause_id]);
+  }, [cause_id, triggerUpdate]);
   if (!cause) {
     return;
   }

@@ -93,6 +93,7 @@ interface DashboardScreenProps {
   onNavigateToHome: () => void;
   onNavigateToCreate: () => void;
   isDesktop: boolean;
+  triggerUpdate: boolean;
 }
 
 interface CauseProps {
@@ -116,6 +117,7 @@ export default function DashboardScreen({
   onNavigateToCreate,
   isDesktop,
   handleJoinCause,
+  triggerUpdate,
 }: DashboardScreenProps) {
   const { refresh } = useAuth();
   const [activeTab, setActiveTab] = useState("my-causes");
@@ -168,7 +170,7 @@ export default function DashboardScreen({
       const { message, causes } = await response.json();
       setJoinedCauses(causes);
     })();
-  }, []);
+  }, [triggerUpdate]);
 
   if (isDesktop) {
     return (

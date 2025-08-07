@@ -27,6 +27,7 @@ interface MainAppProps {
 export function Main() {}
 
 export default function MainApp({ user }: MainAppProps) {
+  const [triggerDashboardUpdate, setTriggerDashboardUpdate] = useState(false);
   const { refresh } = useAuth();
   const router = useRouter();
   // const [activeTab, setActiveTab] = useState("home");
@@ -88,14 +89,15 @@ export default function MainApp({ user }: MainAppProps) {
         return;
       }
       toast.success(message);
-      location.reload();
+      setTriggerDashboardUpdate(!triggerDashboardUpdate);
+
       return;
     } else if (response.status != 200) {
       toast.error(message);
       return;
     }
     toast.success(message);
-    location.reload();
+    setTriggerDashboardUpdate(!triggerDashboardUpdate);
   };
 
   const handleViewCause = (cause: any) => {
@@ -173,6 +175,7 @@ export default function MainApp({ user }: MainAppProps) {
   if (currentScreen === "causeDetails") {
     return (
       <CauseDetailsScreen
+        triggerUpdate={triggerDashboardUpdate}
         cause_id={selectedCauseId}
         user={user}
         onBack={handleBackToMain}
@@ -218,6 +221,7 @@ export default function MainApp({ user }: MainAppProps) {
           <div className="max-w-7xl mx-auto">
             {activeTab === "home" && (
               <HomeScreen
+                triggerUpdate={triggerDashboardUpdate}
                 user={user}
                 onViewCause={handleViewCause}
                 isDesktop={true}
@@ -226,6 +230,7 @@ export default function MainApp({ user }: MainAppProps) {
             )}
             {activeTab === "dashboard" && (
               <DashboardScreen
+                triggerUpdate={triggerDashboardUpdate}
                 user={user}
                 onNavigateToCreate={handleCreateCause}
                 onViewCause={handleViewCause}
@@ -256,6 +261,7 @@ export default function MainApp({ user }: MainAppProps) {
         <div className="pb-20">
           {activeTab === "home" && (
             <HomeScreen
+              triggerUpdate={triggerDashboardUpdate}
               user={user}
               onViewCause={handleViewCause}
               isDesktop={false}
@@ -264,6 +270,7 @@ export default function MainApp({ user }: MainAppProps) {
           )}
           {activeTab === "dashboard" && (
             <DashboardScreen
+              triggerUpdate={triggerDashboardUpdate}
               user={user}
               onNavigateToCreate={handleCreateCause}
               onViewCause={handleViewCause}

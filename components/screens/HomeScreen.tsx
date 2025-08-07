@@ -224,6 +224,7 @@ interface HomeScreenProps {
   onViewCause: (cause: any) => void;
   isDesktop: boolean;
   handleJoinCause: any;
+  triggerUpdate: boolean;
 }
 
 interface CauseProps {
@@ -246,6 +247,7 @@ export default function HomeScreen({
   onViewCause,
   isDesktop,
   handleJoinCause,
+  triggerUpdate,
 }: HomeScreenProps) {
   const { refresh } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
@@ -281,7 +283,7 @@ export default function HomeScreen({
       const { message, causes } = await response.json();
       setActiveCauses(causes);
     })();
-  }, []);
+  }, [triggerUpdate]);
 
   const sortedAndFilteredCauses = activeCauses
     .filter((cause) => {
