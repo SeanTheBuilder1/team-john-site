@@ -21,6 +21,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useAuth } from "@/components/AuthProvider";
+import valid_courses from "@/components/valid_courses";
+import valid_campuses from "@/components/valid_campuses";
 
 interface SettingsScreenProps {
   user: any;
@@ -162,12 +164,22 @@ export default function SettingsScreen({ user, onBack }: SettingsScreenProps) {
                 >
                   Course
                 </Label>
-                <Input
-                  id="course"
+                <Select
                   value={formData.course}
-                  onChange={(e) => handleInputChange("course", e.target.value)}
-                  className="border-gray-300 focus:border-[#820504] focus:ring-[#820504] rounded-xl"
-                />
+                  onValueChange={(value) => handleInputChange("course", value)}
+                  required
+                >
+                  <SelectTrigger className="border-gray-300 focus:border-[#820504] focus:ring-[#820504] rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {valid_courses.map((a: string) => (
+                      <SelectItem value={a} key={a}>
+                        {a}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
@@ -185,31 +197,11 @@ export default function SettingsScreen({ user, onBack }: SettingsScreenProps) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Main Campus">Main Campus</SelectItem>
-                    <SelectItem value="Bataan Campus">Bataan Campus</SelectItem>
-                    <SelectItem value="Binan Campus">Binan Campus</SelectItem>
-                    <SelectItem value="Cabiao Campus">Cabiao Campus</SelectItem>
-                    <SelectItem value="Lopez Campus">Lopez Campus</SelectItem>
-                    <SelectItem value="Mulanay Campus">
-                      Mulanay Campus
-                    </SelectItem>
-                    <SelectItem value="Parañaque Campus">
-                      Parañaque Campus
-                    </SelectItem>
-                    <SelectItem value="Pulilan Campus">
-                      Pulilan Campus
-                    </SelectItem>
-                    <SelectItem value="Ragay Campus">Ragay Campus</SelectItem>
-                    <SelectItem value="San Pedro Campus">
-                      San Pedro Campus
-                    </SelectItem>
-                    <SelectItem value="Santa Maria Campus">
-                      Santa Maria Campus
-                    </SelectItem>
-                    <SelectItem value="Santo Tomas Campus">
-                      Santo Tomas Campus
-                    </SelectItem>
-                    <SelectItem value="Taguig Campus">Taguig Campus</SelectItem>
+                    {valid_campuses.map((a: string) => (
+                      <SelectItem value={a} key={a}>
+                        {a}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

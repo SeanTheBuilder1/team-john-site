@@ -1,0 +1,26 @@
+const valid_campuses = [
+  "Sta. Mesa",
+  "Taguig",
+  "San Juan",
+  "Parañaque",
+  "Bataan",
+  "Sta. Maria",
+  "Pulilan",
+  "Cabiao",
+  "Lopez",
+  "Mulanay",
+  "General Luna",
+  "Unisan",
+  "Ragay",
+  "Sto. Tomas",
+  "Maragondon",
+  "Alfonso",
+  "Bansud",
+  "Sablayan",
+  "Biñan",
+  "San Pedro",
+  "Sta. Rosa",
+  "Calauan",
+];
+
+export default valid_campuses;
