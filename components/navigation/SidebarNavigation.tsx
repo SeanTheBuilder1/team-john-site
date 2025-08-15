@@ -29,8 +29,8 @@ export default function SidebarNavigation({
       {/* Header */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center mb-4">
-          <div className="w-10 h-10 bg-[#820504] rounded-full flex items-center justify-center mr-3">
-            <Heart className="w-6 h-6 text-white" />
+          <div className="w-14 h-14 rounded-full flex items-center justify-center mr-3">
+            <img src="/puppy.svg" />
           </div>
           <div>
             <h1 className="text-lg font-bold text-[#820504]">PUP Cause</h1>

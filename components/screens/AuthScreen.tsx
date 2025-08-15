@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Heart } from "lucide-react";
 import api_link from "@/components/api_link";
 import valid_campuses from "@/components/valid_campuses";
 import valid_courses from "@/components/valid_courses";
@@ -158,8 +157,8 @@ export default function AuthScreen({ onAuthComplete }: AuthScreenProps) {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-[#820504] rounded-full flex items-center justify-center mx-auto mb-4">
-              <Heart className="w-8 h-8 text-white" />
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <img src="/puppy.svg" />
             </div>
             <h1 className="text-2xl font-bold text-[#820504]">
               Welcome to PUP Cause Catalyst
@@ -194,8 +193,8 @@ export default function AuthScreen({ onAuthComplete }: AuthScreenProps) {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-[#820504] rounded-full flex items-center justify-center mx-auto mb-4">
-              <Heart className="w-8 h-8 text-white" />
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <img src="/puppy.svg" />
             </div>
             <h2 className="text-2xl font-bold text-[#820504] mb-2">
               Veify your email
@@ -260,8 +259,8 @@ export default function AuthScreen({ onAuthComplete }: AuthScreenProps) {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-[#820504] rounded-full flex items-center justify-center mx-auto mb-4">
-              <Heart className="w-8 h-8 text-white" />
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <img src="/puppy.svg" />
             </div>
             <h2 className="text-2xl font-bold text-[#820504] mb-2">
               Welcome Back
@@ -336,8 +335,8 @@ export default function AuthScreen({ onAuthComplete }: AuthScreenProps) {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-[#820504] rounded-full flex items-center justify-center mx-auto mb-4">
-              <Heart className="w-8 h-8 text-white" />
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <img src="/puppy.svg" />
             </div>
             <h2 className="text-2xl font-bold text-[#820504] mb-2">
               Join the Community

@@ -25,6 +25,7 @@ html {
   --font-mono: ${GeistMono.variable};
 }
         `}</style>
+        <link rel="icon" type="image/x-icon" href="/puppy.svg" />
       </head>
       <body>
         <AuthProvider>
