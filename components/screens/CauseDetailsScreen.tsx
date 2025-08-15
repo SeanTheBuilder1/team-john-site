@@ -49,9 +49,11 @@ export default function CauseDetailsScreen({
   triggerUpdate,
 }: CauseDetailsScreenProps) {
   const [newComment, setNewComment] = useState("");
+  const [newUpdate, setNewUpdate] = useState("");
   const [replyTo, setReplyTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState("");
   const [comments, setComments] = useState([]);
+  const [updates, setUpdates] = useState([]);
   // const [cause.user_is_joined, setIsJoined] = useState(false);
   const [cause, setCause] = useState<any>();
   const [volunteers, setVolunteers] = useState<any>();
@@ -73,6 +75,25 @@ export default function CauseDetailsScreen({
       await comment_response.json();
     setComments(
       comments.sort((a: any, b: any) => {
+        return a.created_at < b.created_at;
+      }),
+    );
+  };
+  const getUpdates = async () => {
+    const updates_response = await fetch(api_link + "/api/get-cause-updates", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        cause_id: cause_id,
+      }),
+      credentials: "include",
+    });
+    if (updates_response.status != 200) {
+      return;
+    }
+    const { message: updates_message, updates } = await updates_response.json();
+    setUpdates(
+      updates.sort((a: any, b: any) => {
         return a.created_at < b.created_at;
       }),
     );
@@ -134,6 +155,7 @@ export default function CauseDetailsScreen({
         setCause(new_cause);
         getComments();
         getVolunteers();
+        getUpdates();
         return;
       } else if (response.status != 200) {
         const { message: error_msg } = await response.json();
@@ -144,6 +166,7 @@ export default function CauseDetailsScreen({
       setCause(cause);
       getComments();
       getVolunteers();
+      getUpdates();
     })();
   }, [cause_id, triggerUpdate]);
   if (!cause) {
@@ -234,6 +257,43 @@ export default function CauseDetailsScreen({
     //   setComments([...comments, comment]);
     //   setNewComment("");
     // }
+  };
+  const handleAddUpdate = () => {
+    (async () => {
+      const response = await fetch(api_link + "/api/submit-cause-update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cause_id: cause_id,
+          update_text: newUpdate,
+        }),
+        credentials: "include",
+      });
+      if (response.status == 401) {
+        await refresh();
+        const response = await fetch(api_link + "/api/submit-cause-update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            cause_id: cause_id,
+            update_text: newUpdate,
+          }),
+          credentials: "include",
+        });
+        if (response.status != 200) {
+          return;
+        }
+        const { message: new_message } = await response.json();
+        getUpdates();
+        setNewUpdate("");
+        return;
+      } else if (response.status != 200) {
+        return;
+      }
+      const { message } = await response.json();
+      getUpdates();
+      setNewUpdate("");
+    })();
   };
 
   const handleAddReply = (commentId: number) => {
@@ -466,21 +526,44 @@ export default function CauseDetailsScreen({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="px-8 pb-8">
-                  {cause.progressUpdates && cause.progressUpdates.length > 0 ? (
+                  {isOrganizer ? (
+                    <div className="mb-6">
+                      <Textarea
+                        placeholder="Add an update post..."
+                        value={newUpdate}
+                        onChange={(e) => setNewUpdate(e.target.value)}
+                        className="mb-3 border-gray-300 focus:border-[#820504] focus:ring-[#820504] rounded-2xl"
+                        rows={3}
+                      />
+                      <Button
+                        onClick={handleAddUpdate}
+                        disabled={!newUpdate.trim()}
+                        className="bg-[#820504] hover:bg-[#6d0403] text-white rounded-2xl px-6"
+                      >
+                        <Send className="w-4 h-4 mr-2" />
+                        Post Update
+                      </Button>
+                    </div>
+                  ) : (
+                    <></>
+                  )}
+                  {updates && updates.length > 0 ? (
                     <div className="space-y-6">
-                      {cause.progressUpdates.map((update: any) => (
+                      {updates.map((update: any) => (
                         <div
-                          key={update.id}
+                          key={update.cause_update_id}
                           className="border-l-4 border-[#820504] pl-6"
                         >
                           <div className="text-gray-500 mb-2">
-                            {update.date}
+                            {new Date(update.created_at).toLocaleString(
+                              "en-US",
+                            )}
                           </div>
                           <p className="text-gray-700 text-lg leading-relaxed">
-                            {update.update}
+                            {update.update_text}
                           </p>
                           <div className="text-sm text-gray-500 mt-2">
-                            by {update.author}
+                            by {update.username}
                           </div>
                         </div>
                       ))}
@@ -762,19 +845,40 @@ export default function CauseDetailsScreen({
               <CardTitle className="text-[#820504]">Progress Updates</CardTitle>
             </CardHeader>
             <CardContent>
-              {cause.progressUpdates && cause.progressUpdates.length > 0 ? (
+              {isOrganizer ? (
+                <div className="mb-4">
+                  <Textarea
+                    placeholder="Add an update post..."
+                    value={newUpdate}
+                    onChange={(e) => setNewUpdate(e.target.value)}
+                    className="mb-2 border-gray-300 focus:border-[#820504] focus:ring-[#820504] rounded-xl"
+                    rows={3}
+                  />
+                  <Button
+                    onClick={handleAddUpdate}
+                    disabled={!newUpdate.trim()}
+                    className="bg-[#820504] hover:bg-[#6d0403] text-white rounded-full"
+                  >
+                    <Send className="w-4 h-4 mr-2" />
+                    Post Update
+                  </Button>
+                </div>
+              ) : (
+                <></>
+              )}
+              {updates && updates.length > 0 ? (
                 <div className="space-y-4">
-                  {cause.progressUpdates.map((update: any) => (
+                  {updates.map((update: any) => (
                     <div
-                      key={update.id}
+                      key={update.cause_update_id}
                       className="border-l-4 border-[#820504] pl-4"
                     >
                       <div className="text-sm text-gray-500 mb-1">
-                        {update.date}
+                        {new Date(update.created_at).toLocaleString("en-US")}
                       </div>
-                      <p className="text-gray-700">{update.update}</p>
+                      <p className="text-gray-700">{update.update_text}</p>
                       <div className="text-xs text-gray-500 mt-1">
-                        by {update.author}
+                        by {update.username}
                       </div>
                     </div>
                   ))}
