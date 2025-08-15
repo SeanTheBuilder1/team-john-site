@@ -32,9 +32,11 @@ export default function SidebarNavigation({
           <div className="w-14 h-14 rounded-full flex items-center justify-center mr-3">
             <img src="/puppy.svg" />
           </div>
-          <div>
-            <h1 className="text-lg font-bold text-[#820504]">PUP Cause</h1>
-            <p className="text-sm text-gray-600">Catalyst</p>
+          <div className="w-1/2 flex items-center">
+            <img
+              src="/text_logo.svg"
+              className="h-auto w-full object-contain transform scale-150"
+            />
           </div>
         </div>
       </div>
