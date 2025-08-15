@@ -1,7 +1,7 @@
 import type React from "react";
 
 import { useState } from "react";
-import { ArrowLeft, MapPin } from "lucide-react";
+import { ArrowLeft, MapPin, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,6 +21,11 @@ interface CreateCauseScreenProps {
   onBack: () => void;
   user: any;
 }
+
+type ImageType = {
+  file: File;
+  preview: string;
+};
 
 export default function CreateCauseScreen({
   onBack,
@@ -43,6 +48,7 @@ export default function CreateCauseScreen({
     organizerType: "",
     otherOrganizerType: "",
   });
+  const [files, setFiles] = useState<ImageType[]>([]);
 
   const [showOtherInput, setShowOtherInput] = useState(false);
   const [mapCenter, setMapCenter] = useState({ lat: 14.5995, lng: 120.9842 }); // Manila coordinates
@@ -104,15 +110,29 @@ export default function CreateCauseScreen({
     }));
     setShowOtherInput(value === "other");
   };
-
+  const fileToBase64 = (file: File) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+    });
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.campus && !formData.location) {
-      alert("Please select a campus or provide a specific location address.");
-      return;
-    }
+    // if (!formData.campus && !formData.location) {
+    //   alert("Please select a campus or provide a specific location address.");
+    //   return;
+    // }
     setIsSubmitting(true);
+    const files_base64 = [];
+    for (let i = 0; i < files.length; ++i) {
+      files_base64.push({
+        file_base64: await fileToBase64(files[i].file),
+        file_type: files[i].file.type,
+      });
+    }
 
     const response = await fetch(api_link + "/api/submit-cause", {
       method: "POST",
@@ -128,6 +148,7 @@ export default function CreateCauseScreen({
         max_volunteers: Number(formData.maxVolunteers),
         campus: formData.campus,
         address: formData.location,
+        images: files_base64,
       }),
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -148,6 +169,7 @@ export default function CreateCauseScreen({
           max_volunteers: Number(formData.maxVolunteers),
           campus: formData.campus,
           address: formData.location,
+          images: files_base64,
         }),
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -167,6 +189,18 @@ export default function CreateCauseScreen({
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const new_files = Array.from(e.target.files).map((file) => ({
+      file: file,
+      preview: URL.createObjectURL(file),
+    }));
+    setFiles((prev) => [...prev, ...new_files]);
+  };
+  const removeFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -476,6 +510,53 @@ export default function CreateCauseScreen({
                         required
                       />
                     </div>
+                    <div>
+                      <Label
+                        htmlFor="imageUpload"
+                        className="text-sm text-gray-600 mb-2 block"
+                      >
+                        Images (Optional)
+                      </Label>
+                      <Input
+                        id="imageUpload"
+                        type="file"
+                        accept="image/"
+                        multiple
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                      <Button
+                        className="w-full flex-1 bg-[#820504] hover:bg-[#6d0403] text-white py-4 px-12 rounded-2xl font-semibold text-lg"
+                        onClick={() =>
+                          document.getElementById("imageUpload")?.click()
+                        }
+                      >
+                        Select Images
+                      </Button>
+                    </div>
+                    {files.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2 mt-2">
+                        {files.map((src, idx) => (
+                          <div
+                            key={idx}
+                            className="relative group aspect-square overflow-hidden rounded-lg border border-gray-200"
+                          >
+                            <img
+                              src={src.preview}
+                              alt={`Preview ${idx}`}
+                              className="w-full h-full object-cover"
+                            />
+                            <button
+                              onClick={() => removeFile(idx)}
+                              className="absolute top-2 right-2 bg-black bg-opacity-50 text-white rounded-full 
+             p-2 hover:bg-opacity-70 active:scale-95 transition select-none"
+                            >
+                              <Trash className="w-6 h-6" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
                     <div>
                       <Label className="text-[#820504] font-semibold text-base mb-3 block">
@@ -656,6 +737,51 @@ export default function CreateCauseScreen({
             />
           </div>
 
+          <div>
+            <Label
+              htmlFor="imageUpload"
+              className="text-sm text-gray-600 mb-2 block"
+            >
+              Images (Optional)
+            </Label>
+            <Input
+              id="imageUpload"
+              type="file"
+              accept="image/"
+              multiple
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            <Button
+              className="w-full flex-1 bg-[#820504] hover:bg-[#6d0403] text-white py-4 px-12 rounded-2xl font-semibold text-lg"
+              onClick={() => document.getElementById("imageUpload")?.click()}
+            >
+              Select Images
+            </Button>
+          </div>
+          {files.length > 0 && (
+            <div className="grid grid-cols-3 gap-2 mt-2">
+              {files.map((src, idx) => (
+                <div
+                  key={idx}
+                  className="relative group aspect-square overflow-hidden rounded-lg border border-gray-200"
+                >
+                  <img
+                    src={src.preview}
+                    alt={`Preview ${idx}`}
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    onClick={() => removeFile(idx)}
+                    className="absolute top-2 right-2 bg-black bg-opacity-50 text-white rounded-full 
+             p-2 hover:bg-opacity-70 active:scale-95 transition select-none"
+                  >
+                    <Trash className="w-6 h-6" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
           <div>
             <Label htmlFor="category" className="text-[#820504] font-medium">
               Category *

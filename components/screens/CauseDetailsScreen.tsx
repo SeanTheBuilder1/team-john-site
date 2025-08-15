@@ -464,6 +464,22 @@ export default function CauseDetailsScreen({
                       //   </Badge>
                       // ))
                     }
+                    {cause.s3keys.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2 mt-2">
+                        {cause.s3keys.map((src: string, idx: number) => (
+                          <div
+                            key={idx}
+                            className="relative group aspect-square overflow-hidden rounded-lg border border-gray-200"
+                          >
+                            <img
+                              src={src}
+                              alt={`Preview ${idx}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent className="px-8 pb-8">
