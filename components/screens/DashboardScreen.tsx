@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CauseCard from "@/components/cards/CauseCard";
 import { useAuth } from "@/components/AuthProvider";
 import api_link from "@/components/api_link";
+import { toast } from "sonner";
 
 // Sample user causes data with updated location information
 // const userCauses = [
@@ -231,6 +232,13 @@ export default function DashboardScreen({
                   cause={cause}
                   onViewDetails={() => handleViewDetails(cause)}
                   onJoinCause={() => handleJoinCause(cause.cause_id)}
+                  onLeaveCause={() => {
+                    // Simulate: remove from joined list
+                    setJoinedCauses((prev) =>
+                      prev.filter((c) => c.cause_id !== cause.cause_id),
+                    );
+                    toast.success("Cause left successfully");
+                  }}
                   // showDate={true}
                   isDesktop={true}
                 />
@@ -313,6 +321,12 @@ export default function DashboardScreen({
               cause={cause}
               onViewDetails={() => handleViewDetails(cause)}
               onJoinCause={() => handleJoinCause(cause.cause_id)}
+              onLeaveCause={() => {
+                setJoinedCauses((prev) =>
+                  prev.filter((c) => c.cause_id !== cause.cause_id),
+                );
+                toast.success("Cause left successfully");
+              }}
               // showDate={true}
               isDesktop={false}
             />

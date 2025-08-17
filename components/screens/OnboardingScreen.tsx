@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Users, Target, ChevronRight } from "lucide-react";
+import { Target, ChevronRight } from "lucide-react";
 
 interface OnboardingScreenProps {
   onComplete: () => void;
@@ -15,22 +15,25 @@ export default function OnboardingScreen({
 
   const slides = [
     {
-      icon: () => <img src="/puppy.svg" />,
-      title: "Unleash Your Bayanihan Spirit!",
+      // accept props so className and sizing passed when rendered will apply
+      icon: (props: any) => <img src="/puppy.svg" alt="puppy" {...props} />,
+      title: "For PUPians, By PUPians",
       description:
-        "For PUPians, By PUPians — Your Ideas, Our Impact. Join hands with fellow students, faculty, and residents to create meaningful change in our community.",
+        "Your Ideas, Our Impact. Bayanihan with fellow students, faculty, and residents of PUP campuses to create meaningful change in our community.",
     },
     {
-      icon: Users,
-      title: "Connect with Fellow PUPians",
+  // use the provided handshake svg; accepts props so sizing matches the puppy icon
+  icon: (props: any) => <img src="/handshake.svg" alt="handshake" {...props} />,
+      title: "Connect with PUPians",
       description:
-        "Find like-minded individuals who share your passion for making a difference. Build lasting connections through meaningful causes.",
+        "Find like-minded individuals and organizations who share your passion for making a difference. Any campus from Sta. Mesa to San Pedro!",
     },
     {
-      icon: Target,
+      // use the puzzle svg and accept props so sizing matches the other image icons
+      icon: (props: any) => <img src="/puzzle.svg" alt="puzzle" {...props} />,
       title: "Create Real Impact",
       description:
-        "Turn your ideas into action. Start your own cause or join existing ones to create positive change in your community.",
+        "Turn your ideas into action. Start and organize your own cause or join existing ones to be a catalyst for change in our university.",
     },
   ];
 
@@ -43,27 +46,58 @@ export default function OnboardingScreen({
   };
 
   const skip = () => {
+    // Skip onboarding entirely and go to Auth screen
     onComplete();
+  };
+
+  const prevSlide = () => {
+    if (currentSlide > 0) setCurrentSlide(currentSlide - 1);
   };
 
   const slide = slides[currentSlide];
   const Icon = slide.icon;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#820504] to-[#a50606] flex flex-col">
-      <div className="flex-1 flex items-center justify-center p-6">
-        <div className="text-center text-white max-w-sm">
-          <div className="w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-8">
-            <Icon className="w-16 h-16 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold mb-4">{slide.title}</h1>
-          <p className="text-lg opacity-90 leading-relaxed">
-            {slide.description}
-          </p>
+    <div className="relative min-h-screen bg-gradient-to-br from-[#820504] to-[#a50606] flex flex-col">
+  {/* small skip button in the top-right */}
+  <div className="absolute top-4 right-4 z-50 pointer-events-auto">
+        <Button
+          variant="ghost"
+          onClick={skip}
+          className="text-white hover:bg-white/10 text-sm px-3 py-1 rounded"
+        >
+          Skip
+        </Button>
+      </div>
+      <div className="flex-1 flex items-center justify-center p-6 relative">
+        {/* absolute icon so it doesn't move with text changes */}
+  <div className="absolute top-[40%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full flex items-center justify-center overflow-hidden pointer-events-none">
+          <Icon className={`w-32 h-32 text-white object-contain origin-center transform ${currentSlide === 1 ? 'scale-[2.5]' : currentSlide === 2 ? 'scale-[2]' : ''}`} />
+        </div>
+  <div className="text-center text-white max-w-sm mt-28 sm:mt-32">
+          <h1 className="text-2xl font-bold mb-2">{slide.title}</h1>
+          {/* Render the first and third slide descriptions as two smaller paragraphs */}
+          {currentSlide === 0 ? (
+            <>
+              <p className="text-base opacity-90 leading-relaxed">Your Ideas, Our Impact.</p>
+              <p className="text-base opacity-90 leading-relaxed mt-2">
+                Bayanihan with fellow students, faculty, and residents of PUP campuses to create meaningful change in our community.
+              </p>
+            </>
+          ) : currentSlide === 2 ? (
+            <>
+              <p className="text-base opacity-90 leading-relaxed">Turn your ideas into action.</p>
+              <p className="text-base opacity-90 leading-relaxed mt-2">
+                Start and organize your own cause or join existing ones to be a catalyst for change in our university.
+              </p>
+            </>
+          ) : (
+            <p className="text-lg opacity-90 leading-relaxed">{slide.description}</p>
+          )}
         </div>
       </div>
 
-      <div className="p-6">
+  <div className="p-6">
         <div className="flex justify-center mb-6">
           {slides.map((_, index) => (
             <div
@@ -76,10 +110,11 @@ export default function OnboardingScreen({
         <div className="flex gap-4">
           <Button
             variant="ghost"
-            onClick={skip}
-            className="text-white hover:bg-white/20 flex-1"
+            onClick={prevSlide}
+            disabled={currentSlide === 0}
+            className="text-white hover:bg-white/20 flex-1 disabled:opacity-50"
           >
-            Skip
+            Previous
           </Button>
           <Button
             onClick={nextSlide}

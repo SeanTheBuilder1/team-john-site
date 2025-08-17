@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Users, Clock, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,11 +12,22 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface CauseCardProps {
   cause: any;
   onViewDetails: () => void;
   onJoinCause: () => void;
+  onLeaveCause?: () => void;
   showDate?: boolean;
   isDesktop?: boolean;
 }
@@ -24,9 +36,11 @@ export default function CauseCard({
   cause,
   onViewDetails,
   onJoinCause,
+  onLeaveCause,
   showDate = true,
   isDesktop = false,
 }: CauseCardProps) {
+  const [leaveOpen, setLeaveOpen] = useState(false);
   const formatDateRange = (startDate: string, endDate: string) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
@@ -132,18 +146,21 @@ export default function CauseCard({
             />
 
             <div className="flex gap-3 mt-auto">
-              {
-                <Button
-                  onClick={onJoinCause}
-                  className={`flex-1 rounded-full font-medium ${
-                    cause.user_is_joined
-                      ? "bg-gray-500 hover:bg-gray-600 text-white"
-                      : "bg-[#820504] hover:bg-[#6d0403] text-white"
-                  }`}
-                >
-                  {cause.user_is_joined ? "Cause Joined" : "Join Cause"}
-                </Button>
-              }
+              <Button
+                onClick={
+                  cause.user_is_joined
+                    ? () => setLeaveOpen(true)
+                    : onJoinCause
+                }
+                className={`flex-1 rounded-full font-medium ${
+                  cause.user_is_joined
+                    ? "bg-gray-500 hover:bg-red-600 text-white"
+                    : "bg-[#820504] hover:bg-[#6d0403] text-white"
+                }`}
+                title={cause.user_is_joined ? "Leave cause" : "Join cause"}
+              >
+                {cause.user_is_joined ? "Cause Joined" : "Join Cause"}
+              </Button>
               <Button
                 onClick={onViewDetails}
                 variant="outline"
@@ -152,6 +169,30 @@ export default function CauseCard({
                 View Details
               </Button>
             </div>
+
+            {/* Leave confirmation dialog */}
+            <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Leave this cause?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to leave "{cause.title}"? You may lose your spot if the cause fills up.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-red-600 hover:bg-red-700"
+                    onClick={() => {
+                      setLeaveOpen(false);
+                      onLeaveCause?.();
+                    }}
+                  >
+                    Leave Cause
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </CardContent>
         </Card>
       </div>
@@ -234,12 +275,15 @@ export default function CauseCard({
 
           <div className="flex gap-2">
             <Button
-              onClick={onJoinCause}
+              onClick={
+                cause.user_is_joined ? () => setLeaveOpen(true) : onJoinCause
+              }
               className={`flex-1 rounded-full font-medium ${
                 cause.user_is_joined
-                  ? "bg-gray-500 hover:bg-gray-600 text-white"
+                  ? "bg-gray-500 hover:bg-red-600 text-white"
                   : "bg-[#820504] hover:bg-[#6d0403] text-white"
               }`}
+              title={cause.user_is_joined ? "Leave cause" : "Join cause"}
             >
               {cause.user_is_joined ? "Cause Joined" : "Join Cause"}
             </Button>
@@ -251,6 +295,29 @@ export default function CauseCard({
               View Details
             </Button>
           </div>
+          {/* Leave confirmation dialog (mobile) */}
+          <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Leave this cause?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to leave "{cause.title}"?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-red-600 hover:bg-red-700"
+                  onClick={() => {
+                    setLeaveOpen(false);
+                    onLeaveCause?.();
+                  }}
+                >
+                  Leave Cause
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </CardContent>
       </Card>
     </div>

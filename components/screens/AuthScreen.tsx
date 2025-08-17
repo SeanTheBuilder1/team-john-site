@@ -156,16 +156,17 @@ export default function AuthScreen({ onAuthComplete }: AuthScreenProps) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
         <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <img src="/puppy.svg" />
+          <div className="text-center mb-8 relative">
+            {/* stacked logo: single puppy with text logo layered on top */}
+            <div className="mx-auto w-[260px] h-[260px] relative mt-[10px]">
+              <img src="/puppy.svg" alt="puppy" className="w-full h-full object-contain transform -translate-y-[0px]" />
+              <img
+                src="/text_logo.svg"
+                alt="text logo"
+                className="absolute left-1/2 top-1/2 transform -translate-x-1/2 translate-y-[0px] w-full h-full object-contain z-10 pointer-events-none"
+              />
             </div>
-            <h1 className="text-2xl font-bold text-[#820504]">
-              Welcome to PUP Cause Catalyst
-            </h1>
-            <p className="text-gray-600 mt-2">
-              Connecting Hearts, Creating Impact
-            </p>
+            <p className="text-gray-600 mt-6">Connecting Hearts, Creating Impact</p>
           </div>
 
           <div className="space-y-4">

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/components/AuthProvider";
 import api_link from "@/components/api_link";
+import { toast } from "sonner";
 
 // Sample data with updated location information
 const causes = [
@@ -321,10 +322,10 @@ export default function HomeScreen({
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-[#820504] mb-2">
-            Welcome back, {user.name.split(" ")[0]}!
+            Kamusta, {user.name.split(" ")[0]}?
           </h1>
           <p className="text-gray-600 text-lg">
-            Ready to make a difference today?
+            Sayo nagsisimula ang pagbabago!
           </p>
         </div>
 
@@ -372,6 +373,22 @@ export default function HomeScreen({
               cause={cause}
               onViewDetails={() => onViewCause(cause)}
               onJoinCause={() => handleJoinCause(cause.cause_id)}
+              onLeaveCause={() => {
+                // Simulate leave: decrement volunteer_count and toggle user_is_joined
+                setActiveCauses((prev) =>
+                  prev.map((c) =>
+                    c.cause_id === cause.cause_id
+                      ? {
+                          ...c,
+                          volunteer_count: Math.max(0, c.volunteer_count - 1),
+                          // @ts-ignore - backend provides this at runtime
+                          user_is_joined: false,
+                        }
+                      : c,
+                  ),
+                );
+                toast.success("Cause left successfully");
+              }}
               isDesktop={true}
             />
           ))}
@@ -394,9 +411,9 @@ export default function HomeScreen({
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-[#820504] mb-2">
-          Welcome back, {user.name.split(" ")[0]}!
+          Kamusta, {user.name.split(" ")[0]}?
         </h1>
-        <p className="text-gray-600">Ready to make a difference today?</p>
+        <p className="text-gray-600">Sayo nagsisimula ang pagbabago!</p>
       </div>
 
       {/* Search and Sort */}
@@ -440,6 +457,21 @@ export default function HomeScreen({
             cause={cause}
             onViewDetails={() => onViewCause(cause)}
             onJoinCause={() => handleJoinCause(cause.cause_id)}
+            onLeaveCause={() => {
+              setActiveCauses((prev) =>
+                prev.map((c) =>
+                  c.cause_id === cause.cause_id
+                    ? {
+                        ...c,
+                        volunteer_count: Math.max(0, c.volunteer_count - 1),
+                        // @ts-ignore
+                        user_is_joined: false,
+                      }
+                    : c,
+                ),
+              );
+              toast.success("Cause left successfully");
+            }}
             isDesktop={false}
           />
         ))}
