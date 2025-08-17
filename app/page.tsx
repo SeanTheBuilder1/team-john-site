@@ -16,6 +16,12 @@ export default function PUPCauseCatalyst() {
     "splash" | "onboarding" | "auth" | "main"
   >("splash");
 
+  // Ensure splash screen animation completes before switching
+  const [splashDone, setSplashDone] = useState(false);
+  const [pendingScreen, setPendingScreen] = useState<
+    "onboarding" | "main" | null
+  >(null);
+
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -35,19 +41,28 @@ export default function PUPCauseCatalyst() {
             },
           );
           if (user_info_response.status != 200) {
-            setCurrentScreen("onboarding");
+            // Don't switch yet; wait until splash animation completes
+            setPendingScreen("onboarding");
             return;
           }
           const { message: user_info_message, user_info } =
             await user_info_response.json();
           setUser(user_info);
-          setCurrentScreen("main");
+          // Don't switch yet; wait until splash animation completes
+          setPendingScreen("main");
           return false;
         })();
       }
     };
     checkAuth();
   }, [currentScreen, refresh, isLoading]);
+
+  // Switch from splash only after the animation completed
+  useEffect(() => {
+    if (currentScreen === "splash" && splashDone && pendingScreen) {
+      setCurrentScreen(pendingScreen);
+    }
+  }, [splashDone, pendingScreen, currentScreen]);
 
   const handleOnboardingComplete = () => setCurrentScreen("auth");
 
@@ -56,7 +71,25 @@ export default function PUPCauseCatalyst() {
     setCurrentScreen("main");
   };
 
-  if (currentScreen === "splash") return <SplashScreen />;
+  // While in splash, render the next screen underneath and overlay splash on top.
+  if (currentScreen === "splash") {
+    // Decide which screen should be shown next based on auth probe
+    const next = pendingScreen ?? "onboarding";
+    return (
+      <div className="relative min-h-screen bg-gradient-to-br from-[#820504] to-[#a50606]">
+        <div className="relative z-0">
+          {next === "onboarding" && (
+            <OnboardingScreen onComplete={handleOnboardingComplete} />
+          )}
+          {next === "main" && <MainApp user={user} />}
+        </div>
+        <div className="absolute inset-0 z-50">
+          <SplashScreen onComplete={() => setSplashDone(true)} />
+        </div>
+      </div>
+    );
+  }
+
   if (currentScreen === "onboarding")
     return <OnboardingScreen onComplete={handleOnboardingComplete} />;
   if (currentScreen === "auth")

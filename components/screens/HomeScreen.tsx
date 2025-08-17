@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/components/AuthProvider";
 import api_link from "@/components/api_link";
-import { toast } from "sonner";
 
 // Sample data with updated location information
 const causes = [
@@ -226,6 +225,8 @@ interface HomeScreenProps {
   isDesktop: boolean;
   handleJoinCause: any;
   triggerUpdate: boolean;
+  handleLeaveCause: (causeId: number) => Promise<void>;
+  locallyUnjoined?: number[];
 }
 
 interface CauseProps {
@@ -248,7 +249,9 @@ export default function HomeScreen({
   onViewCause,
   isDesktop,
   handleJoinCause,
+  handleLeaveCause,
   triggerUpdate,
+  locallyUnjoined = [],
 }: HomeScreenProps) {
   const { refresh } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
@@ -367,31 +370,22 @@ export default function HomeScreen({
 
         {/* Desktop Grid Layout */}
         <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
-          {sortedAndFilteredCauses.map((cause) => (
+          {sortedAndFilteredCauses.map((cause) => {
+            const isLocallyUnjoined = locallyUnjoined.includes(cause.cause_id);
+            const causeWithOverride: any = isLocallyUnjoined
+              ? { ...cause, user_is_joined: false, volunteer_count: Math.max(0, (cause as any).volunteer_count - 1) }
+              : cause;
+            return (
             <CauseCard
               key={cause.cause_id}
-              cause={cause}
-              onViewDetails={() => onViewCause(cause)}
+              cause={causeWithOverride}
+              onViewDetails={() => onViewCause(causeWithOverride)}
               onJoinCause={() => handleJoinCause(cause.cause_id)}
-              onLeaveCause={() => {
-                // Simulate leave: decrement volunteer_count and toggle user_is_joined
-                setActiveCauses((prev) =>
-                  prev.map((c) =>
-                    c.cause_id === cause.cause_id
-                      ? {
-                          ...c,
-                          volunteer_count: Math.max(0, c.volunteer_count - 1),
-                          // @ts-ignore - backend provides this at runtime
-                          user_is_joined: false,
-                        }
-                      : c,
-                  ),
-                );
-                toast.success("Cause left successfully");
-              }}
+              onLeaveCause={() => handleLeaveCause(cause.cause_id)}
               isDesktop={true}
             />
-          ))}
+            );
+          })}
         </div>
 
         {sortedAndFilteredCauses.length === 0 && (
@@ -451,30 +445,22 @@ export default function HomeScreen({
 
       {/* Mobile List Layout */}
       <div className="space-y-4">
-        {sortedAndFilteredCauses.map((cause) => (
-          <CauseCard
-            key={cause.cause_id}
-            cause={cause}
-            onViewDetails={() => onViewCause(cause)}
-            onJoinCause={() => handleJoinCause(cause.cause_id)}
-            onLeaveCause={() => {
-              setActiveCauses((prev) =>
-                prev.map((c) =>
-                  c.cause_id === cause.cause_id
-                    ? {
-                        ...c,
-                        volunteer_count: Math.max(0, c.volunteer_count - 1),
-                        // @ts-ignore
-                        user_is_joined: false,
-                      }
-                    : c,
-                ),
-              );
-              toast.success("Cause left successfully");
-            }}
-            isDesktop={false}
-          />
-        ))}
+        {sortedAndFilteredCauses.map((cause) => {
+          const isLocallyUnjoined = locallyUnjoined.includes(cause.cause_id);
+          const causeWithOverride: any = isLocallyUnjoined
+            ? { ...cause, user_is_joined: false, volunteer_count: Math.max(0, (cause as any).volunteer_count - 1) }
+            : cause;
+          return (
+            <CauseCard
+              key={cause.cause_id}
+              cause={causeWithOverride}
+              onViewDetails={() => onViewCause(causeWithOverride)}
+              onJoinCause={() => handleJoinCause(cause.cause_id)}
+              onLeaveCause={() => handleLeaveCause(cause.cause_id)}
+              isDesktop={false}
+            />
+          );
+        })}
       </div>
 
       {sortedAndFilteredCauses.length === 0 && (

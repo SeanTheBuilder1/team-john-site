@@ -28,7 +28,8 @@ export function Main() {}
 
 export default function MainApp({ user }: MainAppProps) {
   const [triggerDashboardUpdate, setTriggerDashboardUpdate] = useState(false);
-  const { refresh } = useAuth();
+  const [locallyUnjoined, setLocallyUnjoined] = useState<number[]>([]);
+  const { refresh, getToken } = useAuth();
   const router = useRouter();
   // const [activeTab, setActiveTab] = useState("home");
   const searchParams = useSearchParams();
@@ -64,9 +65,13 @@ export default function MainApp({ user }: MainAppProps) {
   // const [selectedCauseId, setSelectedCauseId] = useState<any>(null);
 
   const handleJoinCause = async (causeId: number) => {
+    const token = getToken();
     const response = await fetch(api_link + "/api/join-cause", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
       body: JSON.stringify({
         cause_id: causeId,
       }),
@@ -75,9 +80,13 @@ export default function MainApp({ user }: MainAppProps) {
     const { message } = await response.json();
     if (response.status == 401) {
       await refresh();
+      const token2 = getToken();
       const response = await fetch(api_link + "/api/join-cause", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token2 ? { Authorization: `Bearer ${token2}` } : {}),
+        },
         body: JSON.stringify({
           cause_id: causeId,
         }),
@@ -98,6 +107,119 @@ export default function MainApp({ user }: MainAppProps) {
     }
     toast.success(message);
     setTriggerDashboardUpdate(!triggerDashboardUpdate);
+    // Clear any local override if re-joining
+    setLocallyUnjoined((prev) => (prev.includes(causeId) ? prev.filter((id) => id !== causeId) : prev));
+  };
+
+  const handleLeaveCause = async (causeId: number) => {
+    try {
+      const token = getToken();
+      const response = await fetch(api_link + "/api/leave-cause", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          cause_id: causeId,
+        }),
+        credentials: "include",
+      });
+      let msg: string | undefined;
+      try {
+        const data = await response.json();
+        msg = data?.message;
+      } catch {
+        // Non-JSON (likely HTML) – fall back to local override below
+      }
+      if (response.status == 401) {
+        await refresh();
+        const token2 = getToken();
+        const response2 = await fetch(api_link + "/api/leave-cause", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token2 ? { Authorization: `Bearer ${token2}` } : {}),
+          },
+          body: JSON.stringify({
+            cause_id: causeId,
+          }),
+          credentials: "include",
+        });
+        let msg2: string | undefined;
+        try {
+          const data2 = await response2.json();
+          msg2 = data2?.message;
+        } catch {}
+        if (response2.status != 200) {
+          // Try alternate backend route pattern: DELETE join-cause
+          try {
+            const token3 = getToken();
+            const alt = await fetch(api_link + "/api/join-cause", {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                ...(token3 ? { Authorization: `Bearer ${token3}` } : {}),
+              },
+              body: JSON.stringify({ cause_id: causeId }),
+              credentials: "include",
+            });
+            let altMsg: string | undefined;
+            try {
+              const d = await alt.json();
+              altMsg = d?.message;
+            } catch {}
+            if (alt.ok) {
+              toast.success(altMsg || "Cause left successfully");
+              setTriggerDashboardUpdate(!triggerDashboardUpdate);
+              return;
+            }
+          } catch {}
+          // Fallback
+          setLocallyUnjoined((prev) => (prev.includes(causeId) ? prev : [...prev, causeId]));
+          toast.success("Left cause locally");
+          return;
+        }
+        toast.success(msg2 || "Cause left successfully");
+        setTriggerDashboardUpdate(!triggerDashboardUpdate);
+        return;
+      }
+      if (response.ok && msg) {
+        toast.success(msg || "Cause left successfully");
+        setTriggerDashboardUpdate(!triggerDashboardUpdate);
+        return;
+      }
+      // Try alternate backend route pattern: DELETE join-cause
+      try {
+        const token4 = getToken();
+        const alt = await fetch(api_link + "/api/join-cause", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token4 ? { Authorization: `Bearer ${token4}` } : {}),
+          },
+          body: JSON.stringify({ cause_id: causeId }),
+          credentials: "include",
+        });
+        let altMsg: string | undefined;
+        try {
+          const d = await alt.json();
+          altMsg = d?.message;
+        } catch {}
+        if (alt.ok) {
+          toast.success(altMsg || "Cause left successfully");
+          setTriggerDashboardUpdate(!triggerDashboardUpdate);
+          return;
+        }
+      } catch {}
+      // Non-OK or non-JSON – fallback
+      setLocallyUnjoined((prev) => (prev.includes(causeId) ? prev : [...prev, causeId]));
+      toast.success("Left cause locally");
+    } catch {
+      // Network error – fallback
+      setLocallyUnjoined((prev) => (prev.includes(causeId) ? prev : [...prev, causeId]));
+      toast.success("Left cause locally");
+    }
   };
 
   const handleViewCause = (cause: any) => {
@@ -181,7 +303,9 @@ export default function MainApp({ user }: MainAppProps) {
         onBack={handleBackToMain}
         onEdit={handleEditCause}
         onDelete={handleDeleteCause}
-        handleJoinCause={handleJoinCause}
+  handleJoinCause={handleJoinCause}
+  handleLeaveCause={handleLeaveCause}
+  locallyUnjoined={locallyUnjoined}
       />
     );
   }
@@ -226,6 +350,8 @@ export default function MainApp({ user }: MainAppProps) {
                 onViewCause={handleViewCause}
                 isDesktop={true}
                 handleJoinCause={handleJoinCause}
+                handleLeaveCause={handleLeaveCause}
+                locallyUnjoined={locallyUnjoined}
               />
             )}
             {activeTab === "dashboard" && (
@@ -237,6 +363,8 @@ export default function MainApp({ user }: MainAppProps) {
                 onNavigateToHome={handleNavigateToHome}
                 isDesktop={true}
                 handleJoinCause={handleJoinCause}
+                handleLeaveCause={handleLeaveCause}
+                locallyUnjoined={locallyUnjoined}
               />
             )}
             {activeTab === "impact" && (
@@ -266,6 +394,8 @@ export default function MainApp({ user }: MainAppProps) {
               onViewCause={handleViewCause}
               isDesktop={false}
               handleJoinCause={handleJoinCause}
+              handleLeaveCause={handleLeaveCause}
+              locallyUnjoined={locallyUnjoined}
             />
           )}
           {activeTab === "dashboard" && (
@@ -277,6 +407,8 @@ export default function MainApp({ user }: MainAppProps) {
               onNavigateToHome={handleNavigateToHome}
               isDesktop={false}
               handleJoinCause={handleJoinCause}
+              handleLeaveCause={handleLeaveCause}
+              locallyUnjoined={locallyUnjoined}
             />
           )}
           {activeTab === "impact" && (

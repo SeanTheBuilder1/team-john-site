@@ -28,6 +28,17 @@ import { useAuth } from "../AuthProvider";
 import { toast } from "sonner";
 import { getValueByDataKey } from "recharts/types/util/ChartUtils";
 import api_link from "@/components/api_link";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface CauseDetailsScreenProps {
   cause_id: any;
@@ -36,7 +47,9 @@ interface CauseDetailsScreenProps {
   onEdit: (cause: any) => void;
   onDelete: (cause: any) => void;
   handleJoinCause: any;
+  handleLeaveCause: any;
   triggerUpdate: boolean;
+  locallyUnjoined?: number[];
 }
 
 export default function CauseDetailsScreen({
@@ -46,7 +59,9 @@ export default function CauseDetailsScreen({
   onEdit,
   onDelete,
   handleJoinCause,
+  handleLeaveCause,
   triggerUpdate,
+  locallyUnjoined = [],
 }: CauseDetailsScreenProps) {
   const [newComment, setNewComment] = useState("");
   const [newUpdate, setNewUpdate] = useState("");
@@ -57,6 +72,7 @@ export default function CauseDetailsScreen({
   // const [cause.user_is_joined, setIsJoined] = useState(false);
   const [cause, setCause] = useState<any>();
   const [volunteers, setVolunteers] = useState<any>();
+  const [leaveOpen, setLeaveOpen] = useState(false);
   const { refresh } = useAuth();
 
   const getComments = async () => {
@@ -519,16 +535,44 @@ export default function CauseDetailsScreen({
                   />
 
                   <div className="flex gap-4">
-                    <Button
-                      onClick={() => handleJoinCause(cause.cause_id)}
-                      className={`px-8 py-3 rounded-2xl font-semibold text-base ${
-                        cause.user_is_joined
-                          ? "bg-gray-500 hover:bg-gray-600 text-white"
-                          : "bg-[#820504] hover:bg-[#6d0403] text-white"
-                      }`}
-                    >
-                      {cause.user_is_joined ? "Cause Joined" : "Join Cause"}
-                    </Button>
+                    {(!locallyUnjoined.includes(cause.cause_id) && cause.user_is_joined) ? (
+                      <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            className="px-8 py-3 rounded-2xl font-semibold text-base bg-gray-500 hover:bg-red-600 text-white"
+                          >
+                            Cause Joined
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Leave this cause?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              You will be removed from the volunteers list. You can rejoin anytime if slots are available.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              className="bg-red-600 hover:bg-red-700"
+                              onClick={() => {
+                                setLeaveOpen(false);
+                                handleLeaveCause(cause.cause_id);
+                              }}
+                            >
+                              Leave Cause
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    ) : (
+                      <Button
+                        onClick={() => handleJoinCause(cause.cause_id)}
+                        className="px-8 py-3 rounded-2xl font-semibold text-base bg-[#820504] hover:bg-[#6d0403] text-white"
+                      >
+                        Join Cause
+                      </Button>
+                    )}
                     <VolunteersModal />
                   </div>
                 </CardContent>
@@ -840,16 +884,42 @@ export default function CauseDetailsScreen({
               />
 
               <div className="flex gap-3 mb-4">
-                <Button
-                  onClick={() => handleJoinCause(cause.cause_id)}
-                  className={`flex-1 rounded-full font-medium ${
-                    cause.user_is_joined
-                      ? "bg-gray-500 hover:bg-gray-600 text-white"
-                      : "bg-[#820504] hover:bg-[#6d0403] text-white"
-                  }`}
-                >
-                  {cause.user_is_joined ? "Cause Joined" : "Join Cause"}
-                </Button>
+                {(!locallyUnjoined.includes(cause.cause_id) && cause.user_is_joined) ? (
+                  <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
+                    <AlertDialogTrigger asChild>
+                      <Button className="flex-1 rounded-full font-medium bg-gray-500 hover:bg-red-600 text-white">
+                        Cause Joined
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Leave this cause?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          You will be removed from the volunteers list. You can rejoin anytime if slots are available.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-red-600 hover:bg-red-700"
+                          onClick={() => {
+                            setLeaveOpen(false);
+                            handleLeaveCause(cause.cause_id);
+                          }}
+                        >
+                          Leave Cause
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                ) : (
+                  <Button
+                    onClick={() => handleJoinCause(cause.cause_id)}
+                    className="flex-1 rounded-full font-medium bg-[#820504] hover:bg-[#6d0403] text-white"
+                  >
+                    Join Cause
+                  </Button>
+                )}
                 <VolunteersModal />
               </div>
             </CardContent>

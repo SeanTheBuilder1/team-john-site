@@ -90,11 +90,13 @@ import { toast } from "sonner";
 interface DashboardScreenProps {
   user: any;
   handleJoinCause: any;
+  handleLeaveCause: (causeId: number) => Promise<void>;
   onViewCause: (cause: any) => void;
   onNavigateToHome: () => void;
   onNavigateToCreate: () => void;
   isDesktop: boolean;
   triggerUpdate: boolean;
+  locallyUnjoined?: number[];
 }
 
 interface CauseProps {
@@ -118,7 +120,9 @@ export default function DashboardScreen({
   onNavigateToCreate,
   isDesktop,
   handleJoinCause,
+  handleLeaveCause,
   triggerUpdate,
+  locallyUnjoined = [],
 }: DashboardScreenProps) {
   const { refresh } = useAuth();
   const [activeTab, setActiveTab] = useState("my-causes");
@@ -226,23 +230,19 @@ export default function DashboardScreen({
 
           <TabsContent value="joined">
             <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
-              {joinedCauses.map((cause) => (
-                <CauseCard
-                  key={cause.cause_id}
-                  cause={cause}
-                  onViewDetails={() => handleViewDetails(cause)}
-                  onJoinCause={() => handleJoinCause(cause.cause_id)}
-                  onLeaveCause={() => {
-                    // Simulate: remove from joined list
-                    setJoinedCauses((prev) =>
-                      prev.filter((c) => c.cause_id !== cause.cause_id),
-                    );
-                    toast.success("Cause left successfully");
-                  }}
-                  // showDate={true}
-                  isDesktop={true}
-                />
-              ))}
+              {joinedCauses
+                .filter((c) => !locallyUnjoined.includes(c.cause_id))
+                .map((cause) => (
+                  <CauseCard
+                    key={cause.cause_id}
+                    cause={{ ...cause, user_is_joined: true }}
+                    onViewDetails={() => handleViewDetails(cause)}
+                    onJoinCause={() => handleJoinCause(cause.cause_id)}
+                    onLeaveCause={() => handleLeaveCause(cause.cause_id)}
+                    // showDate={true}
+                    isDesktop={true}
+                  />
+                ))}
             </div>
 
             {joinedCauses.length === 0 && (
@@ -315,22 +315,19 @@ export default function DashboardScreen({
         </TabsContent>
 
         <TabsContent value="joined" className="space-y-4">
-          {joinedCauses.map((cause) => (
-            <CauseCard
-              key={cause.cause_id}
-              cause={cause}
-              onViewDetails={() => handleViewDetails(cause)}
-              onJoinCause={() => handleJoinCause(cause.cause_id)}
-              onLeaveCause={() => {
-                setJoinedCauses((prev) =>
-                  prev.filter((c) => c.cause_id !== cause.cause_id),
-                );
-                toast.success("Cause left successfully");
-              }}
-              // showDate={true}
-              isDesktop={false}
-            />
-          ))}
+          {joinedCauses
+            .filter((c) => !locallyUnjoined.includes(c.cause_id))
+            .map((cause) => (
+              <CauseCard
+                key={cause.cause_id}
+                cause={{ ...cause, user_is_joined: true }}
+                onViewDetails={() => handleViewDetails(cause)}
+                onJoinCause={() => handleJoinCause(cause.cause_id)}
+                onLeaveCause={() => handleLeaveCause(cause.cause_id)}
+                // showDate={true}
+                isDesktop={false}
+              />
+            ))}
 
           {joinedCauses.length === 0 && (
             <div className="text-center py-8">

@@ -12,6 +12,7 @@ export default function OnboardingScreen({
   onComplete,
 }: OnboardingScreenProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [exiting, setExiting] = useState(false);
 
   const slides = [
     {
@@ -39,15 +40,18 @@ export default function OnboardingScreen({
 
   const nextSlide = () => {
     if (currentSlide < slides.length - 1) {
-      setCurrentSlide(currentSlide + 1);
+  setCurrentSlide(currentSlide + 1);
     } else {
-      onComplete();
+  // Exit to auth with a left swipe of the whole screen
+  setExiting(true);
+  setTimeout(() => onComplete(), 320);
     }
   };
 
   const skip = () => {
-    // Skip onboarding entirely and go to Auth screen
-    onComplete();
+  // Swipe the whole screen left, then go to Auth
+  setExiting(true);
+  setTimeout(() => onComplete(), 320);
   };
 
   const prevSlide = () => {
@@ -58,7 +62,7 @@ export default function OnboardingScreen({
   const Icon = slide.icon;
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-[#820504] to-[#a50606] flex flex-col">
+    <div className={`relative min-h-screen bg-gradient-to-br from-[#820504] to-[#a50606] flex flex-col transform transition-transform duration-300 ease-out ${exiting ? "-translate-x-full" : "translate-x-0"}`}>
   {/* small skip button in the top-right */}
   <div className="absolute top-4 right-4 z-50 pointer-events-auto">
         <Button
@@ -71,10 +75,10 @@ export default function OnboardingScreen({
       </div>
       <div className="flex-1 flex items-center justify-center p-6 relative">
         {/* absolute icon so it doesn't move with text changes */}
-  <div className="absolute top-[40%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full flex items-center justify-center overflow-hidden pointer-events-none">
+        <div className="absolute top-[40%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full flex items-center justify-center overflow-hidden pointer-events-none">
           <Icon className={`w-32 h-32 text-white object-contain origin-center transform ${currentSlide === 1 ? 'scale-[2.5]' : currentSlide === 2 ? 'scale-[2]' : ''}`} />
         </div>
-  <div className="text-center text-white max-w-sm mt-28 sm:mt-32">
+        <div className="text-center text-white max-w-sm mt-28 sm:mt-32">
           <h1 className="text-2xl font-bold mb-2">{slide.title}</h1>
           {/* Render the first and third slide descriptions as two smaller paragraphs */}
           {currentSlide === 0 ? (
