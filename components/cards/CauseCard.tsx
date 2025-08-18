@@ -147,11 +147,7 @@ export default function CauseCard({
 
             <div className="flex gap-3 mt-auto">
               <Button
-                onClick={
-                  cause.user_is_joined
-                    ? () => setLeaveOpen(true)
-                    : onJoinCause
-                }
+                onClick={cause.user_is_joined ? onLeaveCause : onJoinCause}
                 className={`flex-1 rounded-full font-medium ${
                   cause.user_is_joined
                     ? "bg-gray-500 hover:bg-red-600 text-white"
@@ -169,30 +165,6 @@ export default function CauseCard({
                 View Details
               </Button>
             </div>
-
-            {/* Leave confirmation dialog */}
-            <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Leave this cause?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Are you sure you want to leave "{cause.title}"? You may lose your spot if the cause fills up.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    className="bg-red-600 hover:bg-red-700"
-                    onClick={() => {
-                      setLeaveOpen(false);
-                      onLeaveCause?.();
-                    }}
-                  >
-                    Leave Cause
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
           </CardContent>
         </Card>
       </div>
@@ -276,7 +248,7 @@ export default function CauseCard({
           <div className="flex gap-2">
             <Button
               onClick={
-                cause.user_is_joined ? () => setLeaveOpen(true) : onJoinCause
+                cause.user_is_joined ? () => onLeaveCause : () => onJoinCause
               }
               className={`flex-1 rounded-full font-medium ${
                 cause.user_is_joined
@@ -295,29 +267,6 @@ export default function CauseCard({
               View Details
             </Button>
           </div>
-          {/* Leave confirmation dialog (mobile) */}
-          <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Leave this cause?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to leave "{cause.title}"?
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  className="bg-red-600 hover:bg-red-700"
-                  onClick={() => {
-                    setLeaveOpen(false);
-                    onLeaveCause?.();
-                  }}
-                >
-                  Leave Cause
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </CardContent>
       </Card>
     </div>

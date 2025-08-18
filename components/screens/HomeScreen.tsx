@@ -224,9 +224,8 @@ interface HomeScreenProps {
   onViewCause: (cause: any) => void;
   isDesktop: boolean;
   handleJoinCause: any;
+  handleLeaveCause: any;
   triggerUpdate: boolean;
-  handleLeaveCause: (causeId: number) => Promise<void>;
-  locallyUnjoined?: number[];
 }
 
 interface CauseProps {
@@ -251,7 +250,6 @@ export default function HomeScreen({
   handleJoinCause,
   handleLeaveCause,
   triggerUpdate,
-  locallyUnjoined = [],
 }: HomeScreenProps) {
   const { refresh } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
@@ -370,22 +368,16 @@ export default function HomeScreen({
 
         {/* Desktop Grid Layout */}
         <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
-          {sortedAndFilteredCauses.map((cause) => {
-            const isLocallyUnjoined = locallyUnjoined.includes(cause.cause_id);
-            const causeWithOverride: any = isLocallyUnjoined
-              ? { ...cause, user_is_joined: false, volunteer_count: Math.max(0, (cause as any).volunteer_count - 1) }
-              : cause;
-            return (
+          {sortedAndFilteredCauses.map((cause) => (
             <CauseCard
               key={cause.cause_id}
-              cause={causeWithOverride}
-              onViewDetails={() => onViewCause(causeWithOverride)}
+              cause={cause}
+              onViewDetails={() => onViewCause(cause)}
               onJoinCause={() => handleJoinCause(cause.cause_id)}
               onLeaveCause={() => handleLeaveCause(cause.cause_id)}
               isDesktop={true}
             />
-            );
-          })}
+          ))}
         </div>
 
         {sortedAndFilteredCauses.length === 0 && (
@@ -445,22 +437,16 @@ export default function HomeScreen({
 
       {/* Mobile List Layout */}
       <div className="space-y-4">
-        {sortedAndFilteredCauses.map((cause) => {
-          const isLocallyUnjoined = locallyUnjoined.includes(cause.cause_id);
-          const causeWithOverride: any = isLocallyUnjoined
-            ? { ...cause, user_is_joined: false, volunteer_count: Math.max(0, (cause as any).volunteer_count - 1) }
-            : cause;
-          return (
-            <CauseCard
-              key={cause.cause_id}
-              cause={causeWithOverride}
-              onViewDetails={() => onViewCause(causeWithOverride)}
-              onJoinCause={() => handleJoinCause(cause.cause_id)}
-              onLeaveCause={() => handleLeaveCause(cause.cause_id)}
-              isDesktop={false}
-            />
-          );
-        })}
+        {sortedAndFilteredCauses.map((cause) => (
+          <CauseCard
+            key={cause.cause_id}
+            cause={cause}
+            onViewDetails={() => onViewCause(cause)}
+            onJoinCause={() => handleJoinCause(cause.cause_id)}
+            onLeaveCause={() => handleLeaveCause(cause.cause_id)}
+            isDesktop={false}
+          />
+        ))}
       </div>
 
       {sortedAndFilteredCauses.length === 0 && (
