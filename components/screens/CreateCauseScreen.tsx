@@ -527,6 +527,7 @@ export default function CreateCauseScreen({
                       />
                       <Button
                         className="w-full flex-1 bg-[#820504] hover:bg-[#6d0403] text-white py-4 px-12 rounded-2xl font-semibold text-lg"
+                        type="button"
                         onClick={() =>
                           document.getElementById("imageUpload")?.click()
                         }
@@ -548,6 +549,7 @@ export default function CreateCauseScreen({
                             />
                             <button
                               onClick={() => removeFile(idx)}
+                              type="button"
                               className="absolute top-2 right-2 bg-black bg-opacity-50 text-white rounded-full 
              p-2 hover:bg-opacity-70 active:scale-95 transition select-none"
                             >
@@ -754,6 +756,7 @@ export default function CreateCauseScreen({
             />
             <Button
               className="w-full flex-1 bg-[#820504] hover:bg-[#6d0403] text-white py-4 px-12 rounded-2xl font-semibold text-lg"
+              type="button"
               onClick={() => document.getElementById("imageUpload")?.click()}
             >
               Select Images
@@ -773,6 +776,7 @@ export default function CreateCauseScreen({
                   />
                   <button
                     onClick={() => removeFile(idx)}
+                    type="button"
                     className="absolute top-2 right-2 bg-black bg-opacity-50 text-white rounded-full 
              p-2 hover:bg-opacity-70 active:scale-95 transition select-none"
                   >
