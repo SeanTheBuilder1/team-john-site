@@ -98,7 +98,11 @@ export default function CauseCard({
             </div>
             <div className="text-sm font-medium text-gray-700 mb-3">
               Organized by{" "}
-              <span className="text-[#820504]">{cause.username}</span>
+              <span className="text-[#820504]">
+                {cause.username == "sean1"
+                  ? cause.username + "☆"
+                  : cause.username}
+              </span>
             </div>
             <CardDescription className="text-gray-600 leading-relaxed line-clamp-3">
               {cause.short_description}
@@ -194,7 +198,11 @@ export default function CauseCard({
           </div>
           <div className="text-xs font-medium text-gray-700 mb-2">
             Organized by{" "}
-            <span className="text-[#820504]">{cause.username}</span>
+            <span className="text-[#820504]">
+              {cause.username == "sean1"
+                ? cause.username + "☆"
+                : cause.username}
+            </span>
           </div>
           <CardDescription className="text-sm text-gray-600 leading-relaxed">
             {cause.short_description}

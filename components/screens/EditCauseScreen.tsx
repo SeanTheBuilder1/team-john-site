@@ -781,7 +781,9 @@ export default function EditCauseScreen({
                 <SelectItem value="Environment">Environment</SelectItem>
                 <SelectItem value="Education">Education</SelectItem>
                 <SelectItem value="Animal Care">Animal Care</SelectItem>
-                <SelectItem value="Community">Community Service</SelectItem>
+                <SelectItem value="Community Service">
+                  Community Service
+                </SelectItem>
                 <SelectItem value="Health & Wellness">
                   Health & Wellness
                 </SelectItem>
