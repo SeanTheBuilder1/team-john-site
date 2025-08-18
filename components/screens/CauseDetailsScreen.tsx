@@ -558,6 +558,9 @@ export default function CauseDetailsScreen({
                     >
                       {cause.user_is_joined ? "Cause Joined" : "Join Cause"}
                     </Button>
+                    <Button className="flex-1 rounded-full font-medium bg-[#820504] hover:bg-[#6d0403] text-white">
+                      {user.username == "sean1" ? "Bump" : "Bump (Premium)"}
+                    </Button>
                     <VolunteersModal />
                   </div>
                 </CardContent>
@@ -902,6 +905,9 @@ export default function CauseDetailsScreen({
                   }`}
                 >
                   {cause.user_is_joined ? "Cause Joined" : "Join Cause"}
+                </Button>
+                <Button className="flex-1 rounded-full font-medium bg-[#820504] hover:bg-[#6d0403] text-white">
+                  {user.username == "sean1" ? "Bump" : "Bump (Premium)"}
                 </Button>
                 <VolunteersModal />
               </div>
