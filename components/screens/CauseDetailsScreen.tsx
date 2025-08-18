@@ -449,7 +449,11 @@ export default function CauseDetailsScreen({
                   </div>
                   <div className="text-lg font-medium text-gray-700 mb-4">
                     Organized by{" "}
-                    <span className="text-[#820504]">{cause.username}</span>
+                    <span className="text-[#820504]">
+                      {cause.username == "sean1"
+                        ? cause.username + "☆"
+                        : cause.username}
+                    </span>
                     <span className="text-sm bg-[#dca92c]/20 text-[#820504] px-2 py-1 rounded-full ml-3 capitalize">
                       {organizer_type_str}
                     </span>
@@ -812,7 +816,11 @@ export default function CauseDetailsScreen({
               </div>
               <div className="text-base font-medium text-gray-700 mb-3">
                 Organized by{" "}
-                <span className="text-[#820504]">{cause.username}</span>
+                <span className="text-[#820504]">
+                  {cause.username == "sean1"
+                    ? cause.username + "☆"
+                    : cause.username}
+                </span>
                 <span className="text-xs bg-[#dca92c]/20 text-[#820504] px-2 py-1 rounded-full ml-2 capitalize">
                   {organizer_type_str}
                 </span>

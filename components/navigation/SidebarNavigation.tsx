@@ -97,6 +97,9 @@ export default function SidebarNavigation({
             <div className="font-medium text-[#820504] text-sm">
               {user.name}
             </div>
+            <div className="font-light text-[#820504] text-sm">
+              @{user.username == "sean1" ? user.username + "☆" : user.username}
+            </div>
             <div className="text-xs text-gray-600">{user.course}</div>
           </div>
         </div>
